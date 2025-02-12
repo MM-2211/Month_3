@@ -14,6 +14,9 @@ async def start_handler(message: Message):
             [
                 InlineKeyboardButton(text="Режим работы", callback_data="timework"),
                 InlineKeyboardButton(text="Наш сайт", url="https://www.chess.com/play")
+            ],
+            [
+                InlineKeyboardButton(text="Оставить жалобу", callback_data="review")
             ]
         ]
     )

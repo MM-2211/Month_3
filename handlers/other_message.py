@@ -12,7 +12,7 @@ async def my_info_handler(message):
 
 async def echo_handler(message):
     text = message.text
-    await message.answer(text)
+    await message.answer("Я вас не понимаю(")
 
 def register_handlers(dp: Dispatcher):
     dp.register_message_handler(my_info_handler, commands="myinfo")
