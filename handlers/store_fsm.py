@@ -115,7 +115,7 @@ async def submit_load(message: types.Message, state: FSMContext):
                 await message.answer('Ваши данные в базе!')
                 await state.finish()
         elif message.text == 'нет':
-            await message.answer('Хорошо, отменено!')
+            await message.answer(   'Хорошо, отменено!')
             await state.finish()
 
         else:
@@ -142,6 +142,7 @@ def register_handlers(dp: Dispatcher):
     dp.register_message_handler(load_size, state=StoreFSM.size)
     dp.register_message_handler(load_product_id, state=StoreFSM.product_id)
     dp.register_message_handler(load_infoproduct, state=StoreFSM.infoproduct)
+
     dp.register_message_handler(load_collection, state=StoreFSM.collection)
     dp.register_message_handler(load_photo, state=StoreFSM.photo,
                                 content_types=['photo'])
