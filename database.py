@@ -17,27 +17,6 @@ class Database:
                 )
             """)
 
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS store (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name_product TEXT,
-                    size TEXT,
-                    price TEXT,
-                    photo TEXT,
-                    product TEXT
-                )
-            """)
-
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS products_details (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    productid INTEGER,
-                    category TEXT,
-                    infoproduct TEXT
-                )
-            """)
-            conn.commit()
-
     def add_review(self, data: dict):
         print(data)
         with sqlite3.connect(self.path) as conn:

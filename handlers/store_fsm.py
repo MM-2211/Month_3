@@ -2,6 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
+from db import main_db
 
 class StoreFSM(StatesGroup):
     name_product = State()
@@ -10,6 +11,7 @@ class StoreFSM(StatesGroup):
     size = State()
     product_id = State()
     infoproduct = State()
+    collection = State()
     photo = State()
     submit = State()
 
@@ -62,6 +64,13 @@ async def load_infoproduct(message: types.Message, state: FSMContext):
         data["infoproduct"] = message.text
 
     await StoreFSM.next()
+    await message.answer("Отправьте коллекцию товара")
+
+async def load_collection(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data["collection"] = message.text
+
+    await StoreFSM.next()
     await message.answer("Отправьте фото товара")
 
 
@@ -77,20 +86,44 @@ async def load_photo(message: types.Message, state: FSMContext):
                                        f'Цена - {data["price"]}\n'
                                        f'Размер - {data["size"]}\n'
                                        f'Артикул - {data["product_id"]}\n'
-                                       f'Описание - {data["infoproduct"]}\n')
+                                       f'Описание - {data["infoproduct"]}\n'
+                                       f'Коллекция - {data["collection"]}\n')
 
 async def submit_load(message: types.Message, state: FSMContext):
-    if message.text == 'да':
-        async with state.proxy() as data:
-            await message.answer('Ваши данные в базе!')
+    try:
+        if message.text == 'да':
+            async with state.proxy() as data:
+
+                await main_db.sql_insert_store(
+                    name_product=data['name_product'],
+                    price=data['price'],
+                    size=data['size'],
+                    product_id=data['product_id'],
+                    photo=data['photo']
+                )
+
+                await main_db.sql_insert_store_details(
+                    category=data['category'],
+                    product_id=data['product_id']
+                )
+
+                await main_db.sql_insert_collection_products(
+                    collection=data['collection'],
+                    product_id=data['product_id']
+                )
+
+                await message.answer('Ваши данные в базе!')
+                await state.finish()
+        elif message.text == 'нет':
+            await message.answer('Хорошо, отменено!')
             await state.finish()
-    elif message.text == 'нет':
-        await message.answer('Хорошо, отменено!')
-        await state.finish()
 
-    else:
-        await message.answer('Выберите да или нет')
+        else:
+            await message.answer('Выберите да или нет')
 
+    except Exception as e:
+        await message.answer(f"Ошибка при вставке в базу: {e}")
+        return
 
 async def cancel_fsm(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
@@ -109,6 +142,7 @@ def register_handlers(dp: Dispatcher):
     dp.register_message_handler(load_size, state=StoreFSM.size)
     dp.register_message_handler(load_product_id, state=StoreFSM.product_id)
     dp.register_message_handler(load_infoproduct, state=StoreFSM.infoproduct)
+    dp.register_message_handler(load_collection, state=StoreFSM.collection)
     dp.register_message_handler(load_photo, state=StoreFSM.photo,
                                 content_types=['photo'])
     dp.register_message_handler(submit_load, state=StoreFSM.submit)

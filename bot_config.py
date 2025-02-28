@@ -3,6 +3,7 @@ from dotenv import dotenv_values
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from database import Database
 
+ADMINS = [5140062816, ]
 token = dotenv_values(".env").get("BOT_TOKEN")
 bot = Bot(token=token)
 storage = MemoryStorage()

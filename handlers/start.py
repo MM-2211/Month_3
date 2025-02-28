@@ -6,6 +6,8 @@ from aiogram.types import (
     Message
 )
 
+from db.main_db import create_tables
+
 
 # @dp.message_handler(commands=["start"])
 async def start_handler(message: Message):
@@ -25,6 +27,7 @@ async def start_handler(message: Message):
             ]
         ]
     )
+    await create_tables()
     await message.answer(f"Hello, {user.first_name}!", reply_markup=kb)
 
 async def our_address_handler(callback: CallbackQuery):
